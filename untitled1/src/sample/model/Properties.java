@@ -2,12 +2,14 @@ package sample.model;
 
 import javafx.beans.property.SimpleFloatProperty;
 
+import javax.naming.Binding;
+
 public class Properties {
     private SimpleFloatProperty[] values;
 
     public Properties() {
-        this.values = new SimpleFloatProperty[41];
-        for (int i = 0; i < 41; i++) {
+        this.values = new SimpleFloatProperty[42];
+        for (int i = 0; i < 42; i++) {
             values[i] = new SimpleFloatProperty();
         }
     }
@@ -21,7 +23,7 @@ public class Properties {
     }
 
     public void setValues(String line) {
-        for (int i = 0; i < 41; i++) {
+        for (int i = 0; i < 42; i++) {
             //System.out.print(line.split(",",0)[i] + " ");
             setValue(i,Float.parseFloat(line.split(",",0)[i]));
         }

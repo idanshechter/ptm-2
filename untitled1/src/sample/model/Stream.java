@@ -1,11 +1,8 @@
 package sample.model;
 
-import javafx.beans.property.IntegerProperty;
 import sample.model.anomaly_detection.TimeSeries;
 import sample.model.anomaly_detection.TimeSeriesAnomalyDetector;
 
-import java.io.*;
-import java.net.Socket;
 import java.util.Timer;
 
 // Wraps the relevant connection and ts objects.

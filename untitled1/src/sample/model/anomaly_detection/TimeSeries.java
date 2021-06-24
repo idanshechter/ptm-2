@@ -1,6 +1,6 @@
 package sample.model.anomaly_detection;
 
-import sample.model.anomaly_detection.Point;
+import sample.model.anomaly_detection.essentials.Point;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -8,109 +8,112 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-// Wraps a csv file, taken from PTM1.
-
 public class TimeSeries {
 
-	private String csvFileName;
+    public class col{
+        String name;
+        ArrayList<Float> parameters;
 
-	public class column{
-		private String name;
-		private ArrayList<Float> values;
+        public col(String name) {
+            this.name = name;
+            this.parameters=new ArrayList<>();
+        }
+        public String getName() {
+            return name;
+        }
+        public void setName(String name) {
+            this.name = name;
+        }
+        public ArrayList<Float> getParameters() {
+            return parameters;
+        }
+        public void setParameters(ArrayList<Float> parameters) {
+            this.parameters = parameters;
+        }
+    }
 
-		public column(String name)
-		{
-			this.name = name;
-			this.values = new ArrayList<Float>();
-		}
+    public ArrayList<String> getFeaturesNames(){
+        ArrayList<String> list = new ArrayList<>();
+        for(col feature: this.features){
+            list.add(feature.name);
+        }
+        return list;
+    }
 
-		public String getName() {
-			return name;
-		}
+    public ArrayList<Float> readLine(int index){
+        ArrayList<Float> line = new ArrayList<Float>();
+        for (int i = 0; i < this.features.length; i++) {
+            line.add(this.features[i].getParameters().get(index));
+        }
+        return line;
+    }
 
-		public ArrayList<Float> getValues() {
-			return values;
-		}
+    public float getSepecificValue(String ColName , int TimeStemp) {
+        col f = this.getFeatureByNameid(ColName);
+        if (f == null) {
+            return (Float) null;
+        }
+        if (TimeStemp > f.parameters.size()) {
+            return (Float) null;
+        }
+        return f.getParameters().get(TimeStemp);
+    }
 
-		public void setName(String name) {
-			this.name = name;
-		}
+    public col getFeatureByNameid(String s){
+        for (col feature : features) {
+            String n = feature.name;
+            if (n.equals(s)) {
+                return feature;
+            }
+        }
+        return null;
+    }
 
-		public void setValues(ArrayList<Float> values) {
-			this.values = values;
-		}
-	}
 
-	private column[] table;
+    private col[] features;
+    private BufferedReader reader;
+    public col[] getFeatures() {
+        return features;
+    }
+    public TimeSeries(String csvFileName) {
+        try{
+            reader = new BufferedReader(new FileReader(csvFileName));
+            String line = "";
+            line= reader.readLine();
+            String [] value = line.split(",");
+            features= new col[value.length];
+            for(int i=0;i<value.length;i++) {
+                features[i]=new col(value[i]);
+            }
+            while((line=reader.readLine())!= null) {
 
-	public TimeSeries(String csvFileName){
-		this.csvFileName = csvFileName;
-		String line ="";
+                value = line.split(",");
+                for(int i=0;i<value.length;i++)
+                    features[i].getParameters().add(Float.parseFloat(value[i]));
+            }
 
-		try {
-			@SuppressWarnings("resource")
-			BufferedReader bf = new BufferedReader(new FileReader(csvFileName));
-			line = bf.readLine();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-			String [] line_value = line.split(",");
-			table = new column[line_value.length];
+    public float [] ArrFloats(ArrayList<Float> parameters) {
+        float [] arr= new float [parameters.size()];
+        for(int i=0;i<arr.length;i++) {
+            arr[i]=parameters.get(i);
+        }
+        return arr;
+    }
 
-			for( int i=0; i< line_value.length; i++){    //set the name of the column
-				table[i] = new column(line_value[i]);
-			}
-			while ((line = bf.readLine()) != null)      //sets the values of each column, line by line
-			{
-				line_value = line.split(",");
-
-				for (int j = 0; j < line_value.length; j++)
-					table[j].getValues().add(Float.parseFloat(line_value[j]));
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	public column[] getTable() {
-		return table;
-	}
-
-	public float[] valuesToArr(ArrayList<Float> values)
-	{
-		float[] arrFloat = new float[values.size()];
-
-		for (int i = 0; i < values.size(); i++)
-			arrFloat[i]=values.get(i);
-
-		return arrFloat;
-
-	}
-
-	public Point[] ArrToPoint(float[] x, float[] y)
-	{
-		Point[] p = new Point[x.length];
-
-		for (int i = 0; i < x.length; i++)
-			p[i] = new Point(x[i],y[i]);
-
-		return p;
-
-	}
-
-	public ArrayList<Float> valuesByName(String name){
-		ArrayList<Float> col = new ArrayList<>();
-		for (int j = 0; j < this.getTable().length; j++) {
-			if (this.getTable()[j].getName().equals(name))
-				col = this.getTable()[j].getValues();
-		}
-		return col;
-	}
-
-	public String getCsvFileName() {
-		return this.csvFileName;
-	}
+    public Point[] arrPoints(float [] arr1, float [] arr2 ) {
+        Point [] arr= new Point [arr1.length];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i]=new Point(arr1[i],arr2[i]);
+        }
+        return arr;
+    }
 }
